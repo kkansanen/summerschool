@@ -39,7 +39,7 @@ void print_field(field * f)
 	// TODO: Fix the call to png writing. Note that since we now have a 
 	// dynamically allocated 2D array, we need to pass on a pointer to the 
 	// first element (=row) of the array instead of the array itself.
-    error_code = save_png((double **) f->data, f->nx + 2, f->ny + 2, "dynamic_array.png", 'c');
+    error_code = save_png((double *) f->data[0], f->nx + 2, f->ny + 2, "dynamic_array.png", 'c');
     if (error_code == 0) {
         printf("Wrote output file dynamic_array.png\n");
     } else {
@@ -68,17 +68,17 @@ int main(int argc, char *argv[])
 	// TODO: Allocate memory for a 2D array (nx,ny). Remember to allocate 
 	// space also for a ghost layer around the real data.
 	
-	temperature->data = malloc((nx+2)*sizeof(double *));
-	temperature->data[0] = malloc((nx+2)*(ny+2)*sizeof(double));
+	temperature.data =(double **) malloc((nx+2)*sizeof(double *));
+	temperature.data[0] =(double *) malloc((nx+2)*(ny+2)*sizeof(double));
 	for (i=0; i<nx+2; i++)
-			temperature->data[i] = matrix[0]+i*(ny+2);
+			temperature.data[i] = temperature.data[0]+i*(ny+2);
     // Initialize field and print out the result
     init_field(&temperature, nx, ny);
     print_field(&temperature);
 	
 	// Free memory allocation
 	// TODO: Free memory allocations
-	free(temperature->data[0]);
-	free(temperature->data);
+	free(temperature.data[0]);
+	free(temperature.data);
     return 0;
 }
