@@ -15,8 +15,8 @@ int main(void)
     double laplacian[NX][NY];
 
     // First initalize the inner values to zero
-    for (i = 1; i < NX - 2; i++) {
-        for (j = 1; j < NY - 2; j++) {
+    for (i = 0; i < NX; i++) {
+        for (j = 0; j < NY; j++) {
             array[i][j] = 0.0;
         }
     }
@@ -40,7 +40,11 @@ int main(void)
 
     // Evaluate the Laplacian
     // *INDENT-OFF*
-#error Add the missing part
+	for (i=1; i<NX-2; i++){
+		for (j=1; j<NX-2; j++){
+			laplacian[i][j] = (array[i-1][j]-2*array[i][j]+array[i+1][j])/(DX*DX) + (array[i][j-1]-2*array[i][j]+array[i][j+1])/(DY*DY);
+		}
+	}
  
     // *INDENT-ON*
 
