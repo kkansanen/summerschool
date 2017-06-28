@@ -1,5 +1,5 @@
-#define NX 0.01
-#define NY 0.01
+#define NX 256
+#define NY 256
 
 #define DX 0.01
 #define DY 0.01
@@ -10,7 +10,7 @@ typedef struct {
 	double dx, dy;
 	double dx2;
 	double dy2;
-	double array[nx+2][ny+2];
+	double array[NX+2][NY+2];
 		
 		
 } tempfield;
@@ -28,13 +28,13 @@ void initialize_field (tempfield *f, int nx, int ny, double dx, double dy){
     f->dy2 = dy*dy;
 	
 	for (i = 1; i < f->nx+1; i++) {
-        for (j = 1; j < ny+1; j++) {
+        for (j = 1; j < f->ny+1; j++) {
             f->array[i][j] = 0.0;
         }
     }
 	
 	// Initial conditions for left and right
-    for (i = 0; i < nx+2; i++) {
+    for (i = 0; i < f->nx+2; i++) {
         f->array[i][0] = 20.0;
         f->array[i][f->ny+1] = 70.0;
     }
@@ -48,7 +48,7 @@ void initialize_field (tempfield *f, int nx, int ny, double dx, double dy){
 void laplacian (tempfield *f){
 	
 	int i, j;
-	double laplacian[f->nx+2][f->ny+2]
+	double laplacian[f->nx+2][f->ny+2];
 	
 	for (i=1; i<f->nx+1; i++){
 		for (j=1; j<f->ny+1; j++){
@@ -56,14 +56,15 @@ void laplacian (tempfield *f){
 		}
 	}
 	
-	for (i = 1; i < f->nx + 1; i++){
+/*	for (i = 1; i < f->nx + 1; i++){
         for (j = 1; j < f->ny + 1; j++){
             f->array[i][j] = laplacian[i][j];
 		}
-	}
+	}*/
 }
 	
 int main(void){	
+
 	tempfield f;
 	initialize_field(&f, NX, NY, DX, DY);
 	laplacian(&f);
