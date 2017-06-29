@@ -16,7 +16,7 @@ double **malloc_2d(int nx, int ny)
 
     /* TODO: Add here the 2D array allocation */
 #error Add allocation of 2D array
-
+	
     return array;
 }
 
