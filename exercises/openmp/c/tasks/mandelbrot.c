@@ -12,7 +12,7 @@
 #include "pngwriter.h"
 
 // Maximum number of iterations
-const int MAX_ITER_COUNT=512;
+const int MAX_ITER_COUNT=1024;
 // Marker for different iteration counts
 const int DIFF_ITER_COUNT = -1;
 // Maximum recursion depth
@@ -31,7 +31,7 @@ float abs2(complex v)
 
 // The kernel to count per-pixel values of the portion of the Mandelbrot set
 // Does not need to be edited
-int kernel(int w, int h, complex cmin, complex cmax,
+/*int kernel(int w, int h, complex cmin, complex cmax,
         int x, int y)
 {
     complex dc = cmax - cmin;
@@ -46,8 +46,23 @@ int kernel(int w, int h, complex cmin, complex cmax,
     }
     return iteration;
 } 
+*/
 
-
+int kernel(int w, int h, complex cmin, complex cmax,
+        int x, int y)
+{
+    complex dc = cmax - cmin;
+    float fx = (float)x / w;
+    float fy = (float)y / h;
+    complex z = cmin + fx * creal(dc) + fy * cimag(dc) * I;
+    int iteration = 0;
+    complex c = 0.285 + 0.01*I;
+    while(iteration < MAX_ITER_COUNT && abs2(z) < 2 * 2) {
+        z = z * z + c;
+        iteration++;
+    }
+    return iteration;
+} 
 /* Computes the Mandelbrot image recursively
  * At each call, the image is divided into smaller blocks (by a factor of
  * subdiv), and the function is called recursively with arguments corresponding
@@ -76,6 +91,7 @@ void mandelbrot_block(int *iter_counts, int w, int h, complex cmin,
     // Subdivide recursively
     for (int i = 0; i < SUBDIV; i++) {
       for (int j = 0; j < SUBDIV; j++) {
+#pragma omp task
 	mandelbrot_block(iter_counts, w, h, cmin, cmax,
 			   x0 + i * block_size, y0 + j * block_size, 
 			   d / SUBDIV, depth + 1);
@@ -90,13 +106,15 @@ void mandelbrot_block(int *iter_counts, int w, int h, complex cmin,
       }
     }    
   }
+#pragma omp taskwait
 }
 
 
 int main(int argc, char **argv)
 {
     // Picture size, should be power of two
-    const int w = 2048;
+   // const int w = 2048;
+    const int w = 16384;
     const int h = w;
     int *iter_counts;
 
@@ -105,14 +123,18 @@ int main(int argc, char **argv)
     int pic_bytes = w * h * sizeof(int);
     iter_counts = (int*)malloc(pic_bytes);
 
-    cmin = -1.5 + -1.0*I;
-    cmax = 0.5 + 1.0*I;
+   // cmin = -1.5 + -1.0*I;
+   // cmax = 0.5 + 1.0*I;
+
+    cmin = -1.5 + -1.5*I;
+    cmax = 1.5 + 1.5*I;
 
     double t1 = omp_get_wtime();
 
 // TODO create parallel region. How many threads should be calling
 // mandelbrot_block in this uppermost level?
-
+#pragma omp parallel
+#pragma omp single
     {
         mandelbrot_block(iter_counts, w, h, cmin, cmax,
                 0, 0, w, 1);
