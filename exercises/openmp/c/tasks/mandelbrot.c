@@ -47,7 +47,7 @@ float abs2(complex v)
     return iteration;
 } 
 */
-
+//julia set
 int kernel(int w, int h, complex cmin, complex cmax,
         int x, int y)
 {
@@ -56,13 +56,14 @@ int kernel(int w, int h, complex cmin, complex cmax,
     float fy = (float)y / h;
     complex z = cmin + fx * creal(dc) + fy * cimag(dc) * I;
     int iteration = 0;
-    complex c = 0.285 + 0.01*I;
+    complex c = -0.7269+0.1889*I;
     while(iteration < MAX_ITER_COUNT && abs2(z) < 2 * 2) {
         z = z * z + c;
         iteration++;
     }
     return iteration;
 } 
+
 /* Computes the Mandelbrot image recursively
  * At each call, the image is divided into smaller blocks (by a factor of
  * subdiv), and the function is called recursively with arguments corresponding
