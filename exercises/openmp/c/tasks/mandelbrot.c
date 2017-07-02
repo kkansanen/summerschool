@@ -56,9 +56,9 @@ int kernel(int w, int h, complex cmin, complex cmax,
     float fy = (float)y / h;
     complex z = cmin + fx * creal(dc) + fy * cimag(dc) * I;
     int iteration = 0;
-    complex c = -0.7269+0.1889*I;
+    complex c = 0.39+0.0005*I;
     while(iteration < MAX_ITER_COUNT && abs2(z) < 2 * 2) {
-        z = z * z + c;
+        z = z * z *z + c;
         iteration++;
     }
     return iteration;
@@ -127,8 +127,8 @@ int main(int argc, char **argv)
    // cmin = -1.5 + -1.0*I;
    // cmax = 0.5 + 1.0*I;
 
-    cmin = -1.5 + -1.5*I;
-    cmax = 1.5 + 1.5*I;
+    cmin = -1.2 - 1.1*I;
+    cmax = 1.0 + 1.1*I;
 
     double t1 = omp_get_wtime();
 
