@@ -9,8 +9,9 @@ int main(int argc, char *argv[])
     int size = 10000000;
     int *message;
     int *receiveBuffer;
-    MPI_Status status;
-
+    MPI_Status status[2];
+   MPI_Request request[2];
+ 
     double t0, t1;
 
     MPI_Init(&argc, &argv);
@@ -24,9 +25,6 @@ int main(int argc, char *argv[])
     for (i = 0; i < size; i++)
         message[i] = myid;
 
-    /* Start measuring the time spend in communication */
-    MPI_Barrier(MPI_COMM_WORLD);
-    t0 = MPI_Wtime();
 
     /* TODO start */
     /* Send and receive messages as defined in exercise */
@@ -41,11 +39,20 @@ int dest, source;
      source=myid-1;
      dest=myid+1;
   }
+
+    /* Start measuring the time spend in communication */
+    MPI_Barrier(MPI_COMM_WORLD);
+    t0 = MPI_Wtime();
+
+
+  MPI_Irecv(receiveBuffer, size, MPI_INT, source, MPI_ANY_TAG,  MPI_COMM_WORLD, &request[0]);
+ MPI_Isend(message, size, MPI_INT, dest, myid+1, MPI_COMM_WORLD, &request[1]);
  
-	MPI_Sendrecv(message, size, MPI_INT, dest, myid+1, receiveBuffer, size, MPI_INT, source, myid, MPI_COMM_WORLD, &status);
+  MPI_Waitall(2, request, status);
+//	MPI_Sendrecv(message, size, MPI_INT, dest, myid+1, receiveBuffer, size, MPI_INT, source, myid, MPI_COMM_WORLD, &status);
         printf("Sender: %d. Sent elements: %d. Tag: %d. Receiver: %d\n",
                myid, size, myid + 1, myid + 1);
-MPI_Get_count(&status, MPI_INT, &count);
+MPI_Get_count(&status[0], MPI_INT, &count);
         printf("Receiver: %d. first element %d. Data count  %d\n",
                myid, receiveBuffer[0],count);
   

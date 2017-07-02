@@ -10,16 +10,26 @@ void init_buffers(int *sendbuffer, int *recvbuffer, int buffersize);
 
 int main(int argc, char *argv[])
 {
-    int ntasks, rank, color;
+    int ntasks, rank, color, subrank;
     int sendbuf[2 * NTASKS], recvbuf[2 * NTASKS];
     int printbuf[2 * NTASKS * NTASKS];
-
+    int recvcnt[NTASKS] = {1,1,2,4};
+    int displs[NTASKS] = {0,1,2,4};
     MPI_Comm sub_comm;
+    MPI_Request request;
+    MPI_Status status;
 
     MPI_Init(&argc, &argv);
     MPI_Comm_size(MPI_COMM_WORLD, &ntasks);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-
+   
+    if (rank == 0 || rank == 1){
+      color=1;
+    }else{
+      color=2;
+    }
+  //  MPI_Comm_split(MPI_COMM_WORLD, color, rank, &sub_comm);
+  //  MPI_Comm_rank(sub_comm, &subrank);
     if (ntasks != NTASKS) {
         if (rank == 0) {
             fprintf(stderr, "Run this program with %i tasks.\n", NTASKS);
@@ -35,10 +45,20 @@ int main(int argc, char *argv[])
 
     /* TODO: use a single collective communication call (and maybe prepare
      *       some parameters for the call) */
+    
+    //  MPI_Ibcast(sendbuf, 8, MPI_INT, 0,  MPI_COMM_WORLD, &request);
+   // MPI_Iscatter(sendbuf,2,  MPI_INT, recvbuf, 2, MPI_INT,  0, MPI_COMM_WORLD,&request);
+   //  MPI_Igatherv(sendbuf, recvcnt[rank], MPI_INT, recvbuf, recvcnt, displs, MPI_INT, 1, MPI_COMM_WORLD, &request);
+    MPI_Ialltoall(sendbuf, 2, MPI_INT, recvbuf, 2, MPI_INT,  MPI_COMM_WORLD, &request);
+   // MPI_Scatter(sendbuf,2,  MPI_INT, recvbuf, 2, MPI_INT,  0, MPI_COMM_WORLD);
+   //  MPI_Gatherv(sendbuf, recvcnt[rank], MPI_INT, recvbuf, recvcnt, displs, MPI_INT, 1, MPI_COMM_WORLD);
+   // MPI_Alltoall(sendbuf, 2, MPI_INT, recvbuf, 2, MPI_INT,  MPI_COMM_WORLD);
 
+ ///  MPI_Reduce(sendbuf, recvbuf, 8, MPI_INT, MPI_SUM, 0, sub_comm);
+    MPI_Wait(&request, &status);
     /* Print data that was received */
     /* TODO: add correct buffer */
-    print_buffers(printbuf, ... , 2 * NTASKS);
+    print_buffers(printbuf, recvbuf, 2 * NTASKS);
 
     MPI_Finalize();
     return 0;
