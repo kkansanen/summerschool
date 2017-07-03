@@ -141,17 +141,31 @@ void read_field(field *temperature1, field *temperature2, char *filename,
 void write_restart(field *temperature, parallel_data *parallel, int iter)
 {
     // TODO: open the file called CHECKPOINT (defined in heat.h)
+    MPI_File fh;
+    int tempo[3];
+tempo[0]=temperature->nx_full;
+tempo[1]=temperature->ny_full;
+tempo[2]= iter;
 
+    MPI_File_open(MPI_COMM_WORLD, CHECKPOINT, MPI_MODE_CREATE | MPI_MODE_WRONLY, MPI_INFO_NULL, &fh);
     // TODO: rank 0 writes out a header that has three values:
     //   temperature->nx_full
     //   temperature->ny_full
     //   iter
+    if(parallel->rank == 0){
+      MPI_File_write(fh, tempo, 3, MPI_INT, MPI_STATUS_IGNORE);
+
+    }
 
     // TODO: all processes write out their temperature data into the file,
     //   i.e. the temperature->data array including the ghost layers.
     //   Use a collective write routine.
-
+   int size = (temperature->nx+2)*(temperature->ny+2);
+   int disp = 3*sizeof(int);
+   disp += parallel->rank * size * sizeof(double);
+    MPI_File_write_at_all(fh, disp, &temperature->data[0][0], size, MPI_DOUBLE, MPI_STATUS_IGNORE);
     // TODO: close file
+   MPI_File_close(&fh);
 }
 
 /* Read a restart checkpoint that contains field dimensions, current
@@ -159,11 +173,14 @@ void write_restart(field *temperature, parallel_data *parallel, int iter)
 void read_restart(field *temperature, parallel_data *parallel, int *iter)
 {
     int rows, cols;
-
+   MPI_File fh;
     // TODO: open the file called CHECKPOINT (defined in heat.h)
-
+    MPI_File_open(MPI_COMM_WORLD, CHECKPOINT, MPI_MODE_RDONLY, MPI_INFO_NULL, &fh);
+   
     // TODO: all ranks read the header using collective IO
-
+    MPI_File_read_all(fh, &rows,1, MPI_INT, MPI_STATUS_IGNORE);
+    MPI_File_read_all(fh, &cols,1, MPI_INT, MPI_STATUS_IGNORE);
+    MPI_File_read_all(fh, iter,1, MPI_INT, MPI_STATUS_IGNORE);
     // set correct dimensions to MPI metadata
     parallel_setup(parallel, rows, cols);
     // set local dimensions and allocate memory for the data
@@ -174,5 +191,10 @@ void read_restart(field *temperature, parallel_data *parallel, int *iter)
     //   i.e. the temperature->data array including the ghost layers.
     //   Use a collective read routine.
 
+   int size = (temperature->nx+2)*(temperature->ny+2);
+   int disp = 3*sizeof(int);
+   disp += parallel->rank * size * sizeof(double);
+    MPI_File_read_at_all(fh, disp, &temperature->data[0][0], size, MPI_DOUBLE, MPI_STATUS_IGNORE);
     // TODO: close file
+   MPI_File_close(&fh);
 }
