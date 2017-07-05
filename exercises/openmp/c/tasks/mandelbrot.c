@@ -57,7 +57,7 @@ int kernel(int w, int h, complex cmin, complex cmax,
     complex z = cmin + fx * creal(dc) + fy * cimag(dc) * I;
     int iteration = 0;
     complex c = -0.1948;
-    while(iteration < MAX_ITER_COUNT && abs2(z) < 2 * 2) {
+    while(iteration < MAX_ITER_COUNT && abs2(z) < 4) {
        // z = z*z*z + c;
         z = cpow(z, 1.5) + c;
         iteration++;
@@ -115,8 +115,8 @@ void mandelbrot_block(int *iter_counts, int w, int h, complex cmin,
 int main(int argc, char **argv)
 {
     // Picture size, should be power of two
-  //  const int w = 2048;
-    const int w = 16384;
+    const int w = 2048;
+  //  const int w = 16384;
     const int h = w;
     int *iter_counts;
 
@@ -131,6 +131,8 @@ int main(int argc, char **argv)
     cmin = -0.78 - 0.21*I;
     cmax = -0.36 + 0.21*I;
 
+   // cmin = -2.0 - 2.0*I;
+   // cmax = 2.0 + 2.0*I;
     double t1 = omp_get_wtime();
 
 // TODO create parallel region. How many threads should be calling
