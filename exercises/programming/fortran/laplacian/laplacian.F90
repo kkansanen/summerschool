@@ -25,7 +25,11 @@ program laplacian
   ! and saving to lapl array. Remember to evaluate it only
   ! at the inner points.
 
-
+  do j=2, ny-1
+   do i=2, nx-1
+     lapl(i,j) = (prev(i-1,j) - 2*prev(i,j) + prev(i+1,j))/(dx**2) + (prev(i, j-1) - 2*prev(i,j) + prev(i,j+1))/(dy**2)
+   end do
+  end do
 
 
 
@@ -39,10 +43,10 @@ program laplacian
   do i = 1, nx
     write(*,'(*(G10.1))') prev(i,:)
   end do
-
+  write(*,*) "Previous array value at 5,5: ", prev(5,5)
   write(*,*) "Laplacian of the array:"
   do i = 1, nx
     write(*,'(*(G10.1))') lapl(i,:)
   end do
-
+  write(*,*) "laplacian at 5,5: ", lapl(5,5)
 end program laplacian

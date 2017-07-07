@@ -26,7 +26,11 @@ program intrinsics
 
   !--------------------------------------------------
   ! TODO: use array intrinsics to probe elements of A
-
+  write(*,*) "sum of elements accross the 2nd dimension: ", sum(A, 2)
+  write(*,*) "maximum element at: ", maxloc(A)
+  write(*,*) "min value: ", minval(A)
+  write(*,*) "all elements non-negative: ", all(A>=0)
+  write(*,*) "number of elements greater than or equal to 0.5: ", count(A>=0.5)
 
 
 
