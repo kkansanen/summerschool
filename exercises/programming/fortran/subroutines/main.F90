@@ -2,6 +2,7 @@ program subroutines
   use laplacian_mod
   implicit none
 ! TODO: define the arrays
+  real, allocatable :: previous(:,:), current(:,:)
   integer :: nx, ny
 
   write (*,*) 'Give number of rows and columns for matrix A:'
@@ -14,11 +15,13 @@ program subroutines
 
   call write_field(previous)
 
-  ! compute the Laplacian
+  
+  !compute the Laplacian
   call laplacian(current, previous)
 
-  ! print the result array
+  !print the result array
   call write_field(current)
- 
+
+  deallocate(previous, current)
 end program subroutines
 
